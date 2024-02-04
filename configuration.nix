@@ -6,6 +6,7 @@
   let
         unstableTarball = fetchTarball https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz;
         unstable = import unstableTarball { config = config.nixpkgs.config; };
+        
   in
 
   {
@@ -29,6 +30,8 @@
     boot.loader.grub.efiSupport = true;
     boot.loader.efi.canTouchEfiVariables = true;
     boot.loader.efi.efiSysMountPoint = "/boot";
+    boot.kernelPackages = pkgs.linuxPackages;
+    
     
     networking.hostName = "nixos"; # Define your hostname.
     # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -258,7 +261,7 @@
         #developement
         docker
         docker-compose
-        unstable.vscode
+        vscode
         steam-run-native
         (vscode-with-extensions.override {
               vscodeExtensions = with vscode-extensions; [
