@@ -3,7 +3,10 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-   
+  let
+        unstableTarball = fetchTarball https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz;
+        unstable = import unstableTarball { config = config.nixpkgs.config; };
+  in
 
   {
     # Your configuration settings go here
@@ -156,82 +159,134 @@
     # Define a user account. Don't forget to set a password with ‘passwd’.
     users.users.nolito = {
       isNormalUser = true;
-      description = "nolis";
-      extraGroups = [ "networkmanager" "wheel" "docker"];
-      packages = with pkgs; [
-	polkit_gnome
-        kate
-        kmail
+      description =unstable = import unstableTarball {
+        
+      };
+      kate
+      kmail
+      qbittorrent
+      gimp
+      krita
       ];
     };
     #enable steam
-    programs.steam.enable = true;
+    programs.steam = {
+      enable = true;
+      remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+      dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+      
 
+    
+  };
     #enable docker
     virtualisation.docker.enable = true;
-
+   
     #enable flatpak
     services.flatpak.enable = true;
 
     # Allow unfree packages
-    nixpkgs.config.allowUnfree = true;
+    nixpkgs.config = {
+      allowUnfree = true;
+      
+    };   
+
+      
+
+     
+
+    fonts.packages = with pkgs; [
+        noto-fonts
+        noto-fonts-cjk
+        noto-fonts-emoji
+        liberation_ttf
+        fira-code
+        fira-code-symbols
+        mplus-outline-fonts.githubRelease
+        dina-font
+        proggyfonts
+        roboto
+        roboto-mono
+
+        nerdfonts
+        terminus-nerdfont
+
+    ];      
 
     # List packages installed in system profile. To search, run:
     # $ nix search wget
-    environment.systemPackages = with pkgs; [
-	    vim
-	    neovim
-	    floorp
-	    libreoffice
-	    kitty
-	    alacritty
-	    wget
-	    tree
-	    git
-	    gparted
-	    htop
-	    discord
-	    spotify
-	    yuzu-mainline
-	   #hyprland
-	    waybar
-	    eww
-	    mako 
-	    swww
-	    wofi
-	    
-	    polkit-kde-agent
-	    networkmanagerapplet
-	    #developement
-	    docker
-	    docker-compose
-	    vscode
-	    (vscode-with-extensions.override {
-            vscodeExtensions = with vscode-extensions; [
-	            bbenoist.nix
-	            ms-python.python
-	            ms-azuretools.vscode-docker
-	            ms-vscode-remote.remote-ssh
-	          ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-	            {
-	              name = "remote-ssh-edit";
-	              publisher = "ms-vscode-remote";
-	              version = "0.47.2";
-	              sha256 = "1hp6gjh4xp2m1xlm1jsdzxw9d8frkiidhph6nvl24d0h8z34w49g";
-	            }
-	          ];
-	    })
-	   xdg-desktop-portal-gtk	    	   	
-    ];
+  
+      environment.systemPackages = with pkgs; [
+        vim
+        neovim
+        floorp
+        libreoffice
+        kitty
+        alacritty
+        wget
+        tree
+        git
+        gparted
+        htop
+        discord
+        vesktop
+        
+        
+        spotify
+        yuzu-mainline
+        wineWowPackages.waylandFull
+        winetricks
+        protonup-qt
+        protontricks
+        protonup-ng
+        steam-run
+        bottles
+        #sound 
+        pulseaudioFull
+        playerctl
+        #hyprland
+        waybar
+        eww
+        mako
+        evtest
+        swww
+        wofi
+        #kde
+
+        
+        
+        networkmanagerapplet
+        #developement
+        docker
+        docker-compose
+        unstable.vscode
+        steam-run-native
+        (vscode-with-extensions.override {
+              vscodeExtensions = with vscode-extensions; [
+                bbenoist.nix
+                ms-python.python
+                ms-azuretools.vscode-docker
+                ms-vscode-remote.remote-ssh
+              ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+                {
+                  name = "remote-ssh-edit";
+                  publisher = "ms-vscode-remote";
+                  version = "0.47.2";
+                  sha256 = "1hp6gjh4xp2m1xlm1jsdzxw9d8frkiidhph6nvl24d0h8z34w49g";
+                }
+              ];
+        })
+      xdg-desktop-portal-gtk	    	   	
+      ];
+      
 
 
-    xdg.portal = {
-	enable =true;
-	extraPortals = [pkgs.xdg-desktop-portal-gtk];
-    };
-
+      xdg.portal = {
+    enable =true;
+    extraPortals = [pkgs.xdg-desktop-portal-gtk];
+      };
     
-
+    
+  
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.
     # programs.mtr.enable = true;
@@ -241,11 +296,11 @@
     # };
 
     # List services that you want to enable:
-       systemd = {
+    systemd = {
 	   user.services.polkit-gnome-authentication-agent-1 = {
 	    description = "polkit-gnome-authentication-agent-1";
-	    wantedBy = [ "graphical-session.target" ];
-	    wants = [ "graphical-session.target" ];
+	   # wantedBy = [ "graphical-session.target" ];
+	   # wants = [ "graphical-session.target" ];
 	    after = [ "graphical-session.target" ];
 	    serviceConfig = {
 	        Type = "simple";
